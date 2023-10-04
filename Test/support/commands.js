@@ -44,9 +44,7 @@ Cypress.Commands.add('logout', () => {
     cy.get('[href="/web/index.php/auth/logout"]').click({ force: true })
 })
 
-
-// prevSubjec TBD
-Cypress.Commands.add("clearThenType", { prevSubject: true }, (locator, text) => {
+Cypress.Commands.add("clearThenType", { prevSubject: true }, (locator, text) => { // text = New Text entered , locator = #someLocator
     cy.get(locator).clear({ force: true })
     cy.type(locator).type(text, { force: true })
 })  
