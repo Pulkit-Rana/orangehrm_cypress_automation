@@ -2,7 +2,8 @@
   "scripts": {
     "lint": "eslint .",
     "pretty": "prettier --write \"./**/*.{js,ts,tsx,json}\"",
-    "precommit": "npm run pretty && npm run lint"
+    "precommit": "npm run pretty && npm run lint",
+    "start": "cypress run"
   },
   "devDependencies": {
     "cypress": "^13.2.0"
