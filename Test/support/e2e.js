@@ -18,6 +18,7 @@ import "./commands"
 /// <reference types="Cypress" />
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+import 'cypress-mochawesome-reporter/register';
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from

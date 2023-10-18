@@ -6,9 +6,9 @@ describe("Test Cases to validate the Dashboard functionality", () => {
   before(() => {
     cy.login()
   })
-
+ 
   after(() => {
-    cy.logout()
+    cy.logout() 
   })
 
   it("Just Checking the configs and Custom Commands", () => {

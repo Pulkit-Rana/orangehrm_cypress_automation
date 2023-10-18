@@ -19,20 +19,15 @@ describe("Automating Admin Tab", () => {
   it("Pre-req: Invoke and save the empName to fixturefile", () => {
     cy.get("@admindata").then(data => {
       cy.visit("/web/index.php/admin/viewSystemUsers")
-      cy.get(".oxd-table-body :nth-child(n+1) div:nth-child(2)")
-        .contains(data.searchUsername)
-        .parents(".oxd-table-row--with-border") // Suppose it is a new cy.get a fresh start
-        .find("div:nth-child(4) > div")
-        .invoke("text") // pickup Paul collins 
-        .as("empName1") // I can use it as empName
+      cy.get(".oxd-table-body :nth-child(n+1) div:nth-child(2)").contains(data.searchUsername).parents(".oxd-table-row--with-border").find("div:nth-child(4) > div").invoke("text").as("empName") // I can use it as empName
         .then(empData => { //empDate == empName1 == Paul collins
-          const empName2 = empData.split(" ")[0] //empName2 == empData == Paul
+          const empName = empData.split(" ")[0] //empName2 == empData == Paul
           cy.readFile("Test/fixtures/adminpage.json", error => {
             if (error) {
               return cy.log(error)
             }
           }).then(file => {
-            file.empName = empName2 // "empName": "Pulkit"
+            file.empName = empName // "empName": "Pulkit"
             cy.writeFile("Test/fixtures/adminpage.json", JSON.stringify(file))
           })
         })
@@ -93,7 +88,7 @@ describe("Automating Admin Tab", () => {
     })
   })
 
-  it.only("Verifying The Add User Functionality", () => {
+  it("Verifying The Add User Functionality", () => {
     cy.intercept("POST", "/web/index.php/api/**/auth/public/validation/password").as("pass")
     cy.intercept("GET", "/web/index.php/api/**/pim/employees?**").as("empName")
     cy.get("@admindata").then(admindata => {
@@ -134,8 +129,41 @@ describe("Automating Admin Tab", () => {
   })
 
   it("Validating The Edit User Functionality", () => {
+    cy.intercept("GET", "/web/index.php/api/**/admin/users/**").as("em")
+    cy.intercept("GET", "/web/index.php/api/**/pim/employees?**").as("name")
+    cy.intercept("GET", "/web/index.php/api/**/admin/validation/user-name?**").as("emp")
     navigateToAdminTab()
+    cy.get("@admindata").then((adminData) => {
+      cy.get(".oxd-table-row.oxd-table-row--with-border").contains(adminData.AddedUserName)
+        .parents(".oxd-table-row.oxd-table-row--with-border").find(".bi-pencil-fill").click({ force: true })
+      cy.get(".orangehrm-card-container h6", { timeout: 6000 }).should("have.text", "Edit User")
+      cy.get(".oxd-select-text--arrow").first().click({ force: true }).then(() => {
+        cy.wait("@em")
+        cy.get(`[role="listbox"]`).should("be.visible").contains("ESS").click({ force: true })
+      })
+      cy.get(".oxd-autocomplete-wrapper input", { timeout: 6000 }).clearThenType(adminData.empName, { delay: 300 })
+      cy.wait("@emp")
+      // cy.get('[role="listbox"]', { timeout: 9000 }).should("be.visible").contains(adminData.empName).click({ timeout: 9000 })
+      cy.wait("@name")
+      cy.get(' .oxd-select-text--after > .oxd-icon').last().click({ force: true }).then(() => {
+        cy.get(".oxd-select-dropdown.--positon-bottom").contains("Enabled").parent().should("have.class", "oxd-select-option --selected")
+      })
+      cy.get('.oxd-input').last().clearThenType(adminData.UpdatedUsername, { delay: 200 })
+      cy.wait("@emp")
+    })
   })
+
+  it("Validating The Edit User Functionality", () => {
+    cy.get("@admindata").then((adminData) => {
+      navigateToAdminTab()
+      cy.get(".oxd-table-row.oxd-table-row--with-border").contains(adminData.AddedUserName)
+        .parentsUntil(".oxd-table-card").find(`[type="checkbox"]`).check({ force: true }).should("be.checked")
+      cy.get(".oxd-button--label-danger i").click({ force: true })
+      cy.get('.orangehrm-modal-footer > .oxd-button--label-danger > .oxd-icon').click({ force: true })
+      cy.get("#oxd-toaster_1").should("be.visible")
+    })
+  })
+
 })
 
 function navigateToAdminTab() {
