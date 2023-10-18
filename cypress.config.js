@@ -24,6 +24,7 @@ module.exports = defineConfig({
   screenshotsFolder: "Test/screenshots",
   videosFolder: "Test/videos",
   fixturesFolder: "Test/fixtures",
+  downloadsFolder: "Test/download",
   e2e: {
     baseUrl: "https://opensource-demo.orangehrmlive.com/",
     specPattern: "Test/testcases/**/*",
